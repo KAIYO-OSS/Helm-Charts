@@ -3,12 +3,12 @@ entries:
   servicechart:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2020-12-29T17:43:24.438405+05:30"
+    created: "2020-12-29T17:46:08.913456+05:30"
     description: A Helm chart for Kubernetes
-    digest: d84277fe2fb659353157c38b28783aaa3c151141ecef9aec21737cf0bdb90233
+    digest: 064a3f9f8231c6b506a658c4a9aa22bc50aa95e8bfd54922a94def7e81b096fd
     name: servicechart
     type: application
     urls:
-    - https://mattiaperi.github.io/helm-chart/servicechart-1.0.1.tgz
-    version: 1.0.1
-generated: "2020-12-29T17:43:24.437378+05:30"
+    - https://mattiaperi.github.io/helm-chart/servicechart-1.1.0.tgz
+    version: 1.1.0
+generated: "2020-12-29T17:46:08.912567+05:30"
