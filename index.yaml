@@ -3,12 +3,12 @@ entries:
   servicechart:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2020-12-29T17:46:08.913456+05:30"
+    created: "2021-01-01T11:45:09.053567+05:30"
     description: A Helm chart for Kubernetes
-    digest: 064a3f9f8231c6b506a658c4a9aa22bc50aa95e8bfd54922a94def7e81b096fd
+    digest: 61efb351a0fcd140ee4971efeff3cb7370c25e5251539dd3c2918ae593348bee
     name: servicechart
     type: application
     urls:
-    - https://mattiaperi.github.io/helm-chart/servicechart-1.1.0.tgz
+    - https://kaiyo-oss.github.io/Helm-Charts/servicechart-1.1.0.tgz
     version: 1.1.0
-generated: "2020-12-29T17:46:08.912567+05:30"
+generated: "2021-01-01T11:45:09.052562+05:30"
