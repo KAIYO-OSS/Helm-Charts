@@ -70,7 +70,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    k8s-app: traefik-ingress-lb
+    matchLabels:
+        k8s-app: traefik-ingress-lb
   template:
     metadata:
       labels:
