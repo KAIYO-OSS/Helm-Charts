@@ -108,6 +108,7 @@ metadata:
     k8s-app: traefik-ingress-lb
   name: traefik
 spec:
+  type: LoadBalancer
   ports:
   - name: http
     port: 80
