@@ -85,7 +85,7 @@ spec:
           configMap:
             name: traefik-conf
       containers:
-        - image: traefik
+        - image: traefik:v1.7.16
           name: traefik-ingress-lb
           imagePullPolicy: Always
           volumeMounts:
@@ -124,4 +124,5 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    k8s-app: traefik-ingress-lb
+    matchLabels:
+        k8s-app: traefik-ingress-lb
