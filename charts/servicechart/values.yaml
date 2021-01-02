@@ -5,8 +5,8 @@ image:
   pullPolicy: IfNotPresent
   tag: version_you_want_to_deploy
   env:
-    - name: KEY
-      value: VALUE
+    - name: key
+      value: value
 
 imagePullSecrets: 
   - name : regcred
