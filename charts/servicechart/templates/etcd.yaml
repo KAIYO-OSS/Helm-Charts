@@ -1,14 +1,59 @@
 # storage-class.yaml
 ---
+
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: ssd
-provisioner: local-storage
-volumeBindingMode: Immediate
+  name: etcd-local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
 
-# etcd-sts.yaml
 ---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: etcd-persistent-volume
+  labels:
+    name: etcd-persistent-volume
+spec:
+  storageClassName: etcd-local-storage # The persistent volume is directly dependent upon the storage class to fetch volume for the claim
+  capacity:
+    storage: 1Gi
+  local:
+    path: /Users/redhood/data
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+    - ReadWriteOnce
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: app
+            operator: In
+            values:
+              - etcd
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: etcd-volume-claim
+  labels:
+    app: etcd-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: etcd-local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+
+---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -22,6 +67,7 @@ spec:
       targetPort: 2379
   selector:
     app: etcd
+
 ---
 apiVersion: v1
 kind: Service
@@ -36,7 +82,9 @@ spec:
       name: peer
   selector:
     app: etcd
+
 ---
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -55,6 +103,7 @@ spec:
       labels:
         app: etcd
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
         - name: etcd
           image: quay.io/coreos/etcd:latest
@@ -64,8 +113,8 @@ spec:
             - containerPort: 2380
               name: peer
           volumeMounts:
-            - name: data
-              mountPath: /var/run/etcd
+            - mountPath: /Users/redhood/data
+              name: etcd-volume-claim
           command:
             - /bin/sh
             - -c
@@ -80,3 +129,19 @@ spec:
                 --initial-cluster ${PEERS} \
                 --initial-cluster-state new \
                 --data-dir /var/run/etcd/default.etcd
+      volumes:
+        - name: etcd-volume-claim
+          persistentVolumeClaim:
+            claimName: etcd-volume-claim
+  #volumeClaimTemplates:
+  #  - metadata:
+  #      name: etcd-volume-claim # This is pointing to the volumeMounts inside statefulSet spec
+  #    spec:
+  #      storageClassName: "etcd-local-storage"
+  #      accessModes: [ "ReadWriteOnce" ]
+  #      selector:
+  #        matchLabels:
+  #          name: etcd-persistent-volume
+  #      resources:
+  #        requests:
+  #          storage: 1Gi
