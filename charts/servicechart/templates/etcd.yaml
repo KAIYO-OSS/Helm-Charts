@@ -4,7 +4,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: etcd-local-storage
+  name: etcd-sc
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
@@ -14,39 +14,30 @@ reclaimPolicy: Retain
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: etcd-persistent-volume
+  name: etcd-pv
   labels:
-    name: etcd-persistent-volume
+    type: local
 spec:
-  storageClassName: etcd-local-storage # The persistent volume is directly dependent upon the storage class to fetch volume for the claim
+  storageClassName: manual
   capacity:
-    storage: 1Gi
-  local:
-    path: /Users/redhood/data
-  persistentVolumeReclaimPolicy: Retain
+    storage: 3Gi
   accessModes:
     - ReadWriteOnce
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-          - key: app
-            operator: In
-            values:
-              - etcd
+  hostPath:
+    path: "add mount path"
 
 ---
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: etcd-volume-claim
+  name: etcd-pvc
   labels:
-    app: etcd-volume-claim
+    app: etcd-pvc
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: etcd-local-storage
+  storageClassName: manual
   resources:
     requests:
       storage: 1Gi
@@ -95,7 +86,7 @@ spec:
   selector:
     matchLabels:
       app: etcd
-  serviceName: etcd
+  serviceName: etcd-svc
   replicas: 3
   template:
     metadata:
@@ -113,8 +104,8 @@ spec:
             - containerPort: 2380
               name: peer
           volumeMounts:
-            - mountPath: /Users/redhood/data
-              name: etcd-volume-claim
+            - mountPath: "add mount path"
+              name: etcd-data
           command:
             - /bin/sh
             - -c
@@ -130,18 +121,6 @@ spec:
                 --initial-cluster-state new \
                 --data-dir /var/run/etcd/default.etcd
       volumes:
-        - name: etcd-volume-claim
+        - name: etcd-data
           persistentVolumeClaim:
-            claimName: etcd-volume-claim
-  #volumeClaimTemplates:
-  #  - metadata:
-  #      name: etcd-volume-claim # This is pointing to the volumeMounts inside statefulSet spec
-  #    spec:
-  #      storageClassName: "etcd-local-storage"
-  #      accessModes: [ "ReadWriteOnce" ]
-  #      selector:
-  #        matchLabels:
-  #          name: etcd-persistent-volume
-  #      resources:
-  #        requests:
-  #          storage: 1Gi
+            claimName: etcd-pvc
