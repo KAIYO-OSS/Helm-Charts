@@ -13,3 +13,21 @@ spec:
       name: http
   selector:
     {{- include "servicechart.selectorLabels" . | nindent 4 }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "servicechart.fullname" . }}-backend
+  labels:
+    {{- include "servicechart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service-backend.port }}
+      targetPort: {{ .Values.service-backend.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "servicechart.selectorLabels" . | nindent 4 }}

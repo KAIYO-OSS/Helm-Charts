@@ -1,15 +1,19 @@
-replicaCount: int_replica_initial
+replicaCount: 1
 
 image:
   repository: anuragsarkar250/public
+  repository-backend: anuragsarkar250/public
   pullPolicy: IfNotPresent
   tag: 1
+  tag-backend: 1
   env:
     - name: key
       value: value
-
+  env-backend:
+    - name: key
+      value: value
 imagePullSecrets: 
-  - name : regcred
+  - name : ""
 nameOverride: ""
 fullnameOverride: ""
 
@@ -40,6 +44,11 @@ service:
   port: 5000
   targetPort: 5000
 
+service-backend: 
+  type: LoadBalancer
+  port: 5000
+  targetPort: 5000
+
 ingress:
   enabled: false
   annotations: {}
@@ -61,7 +70,22 @@ resources:
     cpu: 700m
     memory: 512Mi
 
+resources-backend: 
+  limits:
+    cpu: 1500m
+    memory: 800Mi
+  requests:
+    cpu: 700m
+    memory: 512Mi
+
 autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+autoscaling-backend:
   enabled: true
   minReplicas: 1
   maxReplicas: 100
@@ -80,6 +104,16 @@ liveness:
   periodSeconds: 5
 
 readiness:
+  endpoint: /health
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+liveness-backend: 
+  endpoint: /health 
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+readiness-backend:
   endpoint: /health
   initialDelaySeconds: 10
   periodSeconds: 5
