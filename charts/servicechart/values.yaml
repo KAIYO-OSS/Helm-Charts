@@ -1,15 +1,16 @@
 replicaCount: 1
 
+# Replace all the - with _ in the tags and labels
 image:
-  repository: anuragsarkar250/public
-  repository-backend: anuragsarkar250/public
+  repository: anishks1997/kaiyo-titan-ui
+  repositoryBackend: anuragsarkar250/public
   pullPolicy: IfNotPresent
-  tag: 1
-  tag-backend: 1
+  tag: latest
+  tagBackend: 1
   env:
     - name: key
       value: value
-  env-backend:
+  envBackend:
     - name: key
       value: value
 imagePullSecrets: 
@@ -41,10 +42,10 @@ securityContext: {}
 
 service:
   type: LoadBalancer
-  port: 5000
-  targetPort: 5000
+  port: 8083
+  targetPort: 8083
 
-service-backend: 
+serviceBackend:
   type: LoadBalancer
   port: 5000
   targetPort: 5000
@@ -70,7 +71,7 @@ resources:
     cpu: 700m
     memory: 512Mi
 
-resources-backend: 
+resourcesBackend:
   limits:
     cpu: 1500m
     memory: 800Mi
@@ -85,7 +86,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-autoscaling-backend:
+autoscalingBackend:
   enabled: true
   minReplicas: 1
   maxReplicas: 100
@@ -108,12 +109,12 @@ readiness:
   initialDelaySeconds: 10
   periodSeconds: 5
 
-liveness-backend: 
+livenessBackend:
   endpoint: /health 
   initialDelaySeconds: 10
   periodSeconds: 5
 
-readiness-backend:
+readinessBackend:
   endpoint: /health
   initialDelaySeconds: 10
   periodSeconds: 5

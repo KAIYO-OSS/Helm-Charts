@@ -25,8 +25,8 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service-backend.port }}
-      targetPort: {{ .Values.service-backend.targetPort }}
+    - port: {{ .Values.serviceBackend.port }}
+      targetPort: {{ .Values.serviceBackend.targetPort }}
       protocol: TCP
       name: http
   selector:

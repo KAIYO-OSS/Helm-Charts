@@ -79,7 +79,7 @@ kind: Deployment
 metadata:
   name: {{ include "servicechart.fullname" . }}-backend
   labels:
-    {{- include "servicechart.labels" . | nindent 4 }}
+    {{- include "servicechart.labels" . | nindent 4 }}-backend
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -94,7 +94,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "servicechart.selectorLabels" . | nindent 8 }}
+        {{- include "servicechart.selectorLabels" . | nindent 8 }}-backend
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -107,31 +107,31 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository-backend }}:{{ .Values.image.tag-backend | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repositoryBackend }}:{{ .Values.image.tagBackend | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- range .Values.image.env-backend }}
+            {{- range .Values.image.envBackend }}
           - name: {{ .name }}
             value: {{ .value }}
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service-backend.targetPort }}
+              containerPort: {{ .Values.serviceBackend.targetPort }}
               protocol: TCP
           livenessProbe:
-            initialDelaySeconds: {{ .Values.liveness-backend.initialDelaySeconds }}
-            periodSeconds: {{ .Values.liveness-backend.periodSeconds }}
+            initialDelaySeconds: {{ .Values.livenessBackend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessBackend.periodSeconds }}
             httpGet:
-              path: {{ .Values.liveness-backend.endpoint }}
+              path: {{ .Values.livenessBackend.endpoint }}
               port: http
           readinessProbe:
-            initialDelaySeconds: {{ .Values.readiness-backend.initialDelaySeconds }}
-            periodSeconds: {{ .Values.readiness-backend.periodSeconds }}
+            initialDelaySeconds: {{ .Values.readinessBackend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessBackend.periodSeconds }}
             httpGet:
-              path: {{ .Values.readiness-backend.endpoint }}
+              path: {{ .Values.readinessBackend.endpoint }}
               port: http
           resources:
-            {{- toYaml .Values.resources-backend | nindent 12 }}
+            {{- toYaml .Values.resourcesBackend | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -41,19 +41,19 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ include "servicechart.fullname" . }}-backend
-  minReplicas: {{ .Values.autoscaling-backend.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling-backend.maxReplicas }}
+  minReplicas: {{ .Values.autoscalingBackend.minReplicas }}
+  maxReplicas: {{ .Values.autoscalingBackend.maxReplicas }}
   metrics:
-    {{- if .Values.autoscaling-backend.targetCPUUtilizationPercentage }}
+    {{- if .Values.autoscalingBackend.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: {{ .Values.autoscaling-backend.targetCPUUtilizationPercentage }}
+        targetAverageUtilization: {{ .Values.autoscalingBackend.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.autoscaling-backend.targetMemoryUtilizationPercentage }}
+    {{- if .Values.autoscalingBackend.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
-        targetAverageUtilization: {{ .Values.autoscaling-backend.targetMemoryUtilizationPercentage }}
+        targetAverageUtilization: {{ .Values.autoscalingBackend.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
