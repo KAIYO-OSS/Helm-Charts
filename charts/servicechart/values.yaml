@@ -11,8 +11,8 @@ image:
     - name: key
       value: value
   envBackend:
-    - name: key
-      value: value
+    - name: ETCD3_URL
+      value: etcd-client.default.svc.cluster.local
 imagePullSecrets: 
   - name : ""
 nameOverride: ""
