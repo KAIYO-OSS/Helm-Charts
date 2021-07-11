@@ -12,7 +12,7 @@ image:
       value: value
   envBackend:
     - name: ETCD3_URL
-      value: etcd-client.default.svc.cluster.local
+      value: http://etcd-svc
 imagePullSecrets: 
   - name : ""
 nameOverride: ""

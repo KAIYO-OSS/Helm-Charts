@@ -1,46 +1,46 @@
 # storage-class.yaml
 ---
 
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: etcd-sc
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
-reclaimPolicy: Retain
+#kind: StorageClass
+#apiVersion: storage.k8s.io/v1
+#metadata:
+#  name: etcd-sc
+#provisioner: kubernetes.io/no-provisioner
+#volumeBindingMode: WaitForFirstConsumer
+#reclaimPolicy: Retain
 
 ---
 
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: etcd-pv
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 3Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/var/tmp/etcd"
+#kind: PersistentVolume
+#apiVersion: v1
+#metadata:
+#  name: etcd-pv
+#  labels:
+#    type: local
+#spec:
+#  storageClassName: manual
+#  capacity:
+#    storage: 3Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  hostPath:
+#    path: "/var/tmp/etcd"
 
 ---
 
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: etcd-pvc
-  labels:
-    app: etcd-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: manual
-  resources:
-    requests:
-      storage: 1Gi
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: etcd-pvc
+#  labels:
+#    app: etcd-pvc
+#spec:
+#  accessModes:
+#    - ReadWriteOnce
+#  storageClassName: manual
+#  resources:
+#    requests:
+#      storage: 1Gi
 
 
 ---
@@ -60,10 +60,11 @@ spec:
     app: etcd
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: etcd
+  name: etcd-svc
 spec:
   clusterIP: None
   ports:
@@ -76,51 +77,67 @@ spec:
 
 ---
 
-apiVersion: apps/v1
-kind: StatefulSet
+#apiVersion: v1
+#kind: Pod
+#metadata:
+#  name: etcd
+#  labels:
+#    app: etcd
+#spec:
+#  selector:
+#    matchLabels:
+#      app: etcd
+#  #serviceName: e#tcd-svc
+#  #replicas: 1
+##  template:
+##    metadata:
+##      name: etcd
+##      labels:
+##        app: etcd
+#    spec:
+#      persistent: true
+#      containers:
+#        - name: etcd
+#          image: quay.io/coreos/etcd:latest
+#          ports:
+#            - containerPort: 2379
+#              name: client
+#            - containerPort: 2380
+#              name: peer
+##          volumeMounts:
+##            - mountPath: "/var/tmp/etcd"
+##              name: etcd-data
+#          command:
+#            - /bin/sh
+#            - -c
+#            - |
+#              PEERS="etcd-0=http://etcd-0:2380"
+#              exec etcd --name ${HOSTNAME} \
+#                --listen-peer-urls http://0.0.0.0:2380 \
+#                --listen-client-urls http://0.0.0.0:2379 \
+#                --advertise-client-urls http://${HOSTNAME}:2379 \
+#                --initial-advertise-peer-urls http://${HOSTNAME}:2380 \
+#                --initial-cluster-token etcd-cluster-1 \
+#                --initial-cluster ${PEERS} \
+#                --initial-cluster-state new
+#                --data-dir /var/run/etcd/default.etcd
+#      volumes:
+#        - name: etcd-data
+#          persistentVolumeClaim:
+#            claimName: etcd-pvc
+
+apiVersion: v1
+kind: Pod
 metadata:
   name: etcd
   labels:
-    app: etcd
+    app: etcd-pod
 spec:
-  selector:
-    matchLabels:
-      app: etcd
-  serviceName: etcd-svc
-  replicas: 1
-  template:
-    metadata:
-      name: etcd
-      labels:
-        app: etcd
-    spec:
-      terminationGracePeriodSeconds: 10
-      containers:
-        - name: etcd
-          image: quay.io/coreos/etcd:latest
-          ports:
-            - containerPort: 2379
-              name: client
-            - containerPort: 2380
-              name: peer
-          volumeMounts:
-            - mountPath: "/var/tmp/etcd"
-              name: etcd-data
-          command:
-            - /bin/sh
-            - -c
-            - |
-              PEERS="etcd-0=http://etcd-0:2380"
-              exec etcd --name ${HOSTNAME} \
-                --listen-peer-urls http://0.0.0.0:2380 \
-                --listen-client-urls http://0.0.0.0:2379 \
-                --advertise-client-urls http://${HOSTNAME}:2379 \
-                --initial-advertise-peer-urls http://${HOSTNAME}:2380 \
-                --initial-cluster-token etcd-cluster-1 \
-                --initial-cluster ${PEERS} \
-                --initial-cluster-state new \
-                --data-dir /var/run/etcd/default.etcd
-      volumes:
-        - name: etcd-data
-          persistentVolumeClaim:
-            claimName: etcd-pvc
+  containers:
+    - name: etcd
+      image: quay.io/coreos/etcd:latest
+      ports:
+        - containerPort: 2379
+          name: client
+        - containerPort: 2380
+          name: peer
