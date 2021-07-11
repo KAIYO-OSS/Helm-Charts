@@ -26,3 +26,34 @@ spec:
         targetAverageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}
+
+--- 
+
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "servicechart.fullname" . }}-backend
+  labels:
+    {{- include "servicechart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "servicechart.fullname" . }}-backend
+  minReplicas: {{ .Values.autoscalingBackend.minReplicas }}
+  maxReplicas: {{ .Values.autoscalingBackend.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscalingBackend.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.autoscalingBackend.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscalingBackend.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.autoscalingBackend.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

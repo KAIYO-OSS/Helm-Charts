@@ -1,15 +1,20 @@
-replicaCount: int_replica_initial
+replicaCount: 1
 
+# Replace all the - with _ in the tags and labels
 image:
-  repository: container-repo
+  repository: anishks1997/kaiyo-titan-ui
+  repositoryBackend: anuragsarkar250/public
   pullPolicy: IfNotPresent
-  tag: version_you_want_to_deploy
+  tag: latest
+  tagBackend: 1
   env:
     - name: key
       value: value
-
+  envBackend:
+    - name: ETCD3_URL
+      value: http://etcd-svc
 imagePullSecrets: 
-  - name : regcred
+  - name : ""
 nameOverride: ""
 fullnameOverride: ""
 
@@ -20,7 +25,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "your service name"
+  name: "titan"
 
 podAnnotations: {}
 
@@ -37,7 +42,12 @@ securityContext: {}
 
 service:
   type: LoadBalancer
-  port: 80
+  port: 8083
+  targetPort: 8083
+
+serviceBackend:
+  type: LoadBalancer
+  port: 5000
   targetPort: 5000
 
 ingress:
@@ -61,7 +71,22 @@ resources:
     cpu: 700m
     memory: 512Mi
 
+resourcesBackend:
+  limits:
+    cpu: 1500m
+    memory: 800Mi
+  requests:
+    cpu: 700m
+    memory: 512Mi
+
 autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+autoscalingBackend:
   enabled: true
   minReplicas: 1
   maxReplicas: 100
@@ -80,6 +105,16 @@ liveness:
   periodSeconds: 5
 
 readiness:
+  endpoint: /health
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+livenessBackend:
+  endpoint: /health 
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+readinessBackend:
   endpoint: /health
   initialDelaySeconds: 10
   periodSeconds: 5

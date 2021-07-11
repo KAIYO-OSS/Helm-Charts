@@ -1,3 +1,6 @@
+
+# ui server
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,6 +59,80 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+
+# odin 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "servicechart.fullname" . }}-backend
+  labels:
+    {{- include "servicechart.labels" . | nindent 4 }}-backend
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "servicechart.selectorLabels" . | nindent 6 }}-backend
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "servicechart.selectorLabels" . | nindent 8 }}-backend
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "servicechart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repositoryBackend }}:{{ .Values.image.tagBackend | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range .Values.image.envBackend }}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.serviceBackend.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.livenessBackend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessBackend.periodSeconds }}
+            httpGet:
+              path: {{ .Values.livenessBackend.endpoint }}
+              port: http
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.readinessBackend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessBackend.periodSeconds }}
+            httpGet:
+              path: {{ .Values.readinessBackend.endpoint }}
+              port: http
+          resources:
+            {{- toYaml .Values.resourcesBackend | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
